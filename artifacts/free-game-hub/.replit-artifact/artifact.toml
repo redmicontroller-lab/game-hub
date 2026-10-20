@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/free-game-hub/"
+title = "Free Game Hub"
+description = "A free browser gaming hub with instantly playable mini-games, game discovery, and a polished lobby. No account or payment required."
+version = "1.0.0"
+id = "artifacts/free-game-hub"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/free-game-hub/" ]
+localPort = 24884
+
+[services.development]
+run = "pnpm --filter @workspace/free-game-hub run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/free-game-hub", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/free-game-hub/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24884"
+BASE_PATH = "/free-game-hub/"

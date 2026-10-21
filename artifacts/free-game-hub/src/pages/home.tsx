@@ -54,7 +54,60 @@ const EXPANSION_GAMES = [
   { id: 'rocket-landing', name: 'Rocket Landing', category: 'Arcade', duration: '1–2 min', description: 'Balance your thrust for a gentle touchdown.' },
 ] as const;
 type ExpansionGameId = (typeof EXPANSION_GAMES)[number]['id'];
-type GameId = BaseGameId | ExtraGameId | ExpansionGameId;
+const ADDITIONAL_GAMES = [
+  { id: 'neon-skyline-3d', name: 'Neon Skyline Sprint', category: '3D Cars', duration: '2–5 min', description: 'Race through a glowing city after dark.' },
+  { id: 'canyon-drift-3d', name: 'Canyon Drift 3D', category: '3D Cars', duration: '2–5 min', description: 'Slide around sharp canyon bends without clipping the walls.' },
+  { id: 'alpine-rally-3d', name: 'Alpine Rally 3D', category: '3D Cars', duration: '2–5 min', description: 'Thread a rally car through winding mountain passes.' },
+  { id: 'coastal-cruise-3d', name: 'Coastal Cruise 3D', category: '3D Cars', duration: '2–4 min', description: 'Collect beach tokens along a sunny ocean road.' },
+  { id: 'dune-dash-3d', name: 'Dune Dash 3D', category: '3D Cars', duration: '2–5 min', description: 'Weave between dunes and desert barriers.' },
+  { id: 'midnight-motorway-3d', name: 'Midnight Motorway', category: '3D Cars', duration: '2–5 min', description: 'Outrun traffic on a fast, dark highway.' },
+  { id: 'jungle-rally-3d', name: 'Jungle Rally 3D', category: '3D Cars', duration: '2–5 min', description: 'Dodge fallen logs on a leafy rally trail.' },
+  { id: 'arctic-ice-circuit-3d', name: 'Arctic Ice Circuit', category: '3D Cars', duration: '2–5 min', description: 'Keep control on a slippery frozen track.' },
+  { id: 'downtown-taxi-3d', name: 'Downtown Taxi Dash', category: '3D Cars', duration: '2–4 min', description: 'Pick up fares and deliver them through busy streets.' },
+  { id: 'grand-prix-apex-3d', name: 'Grand Prix Apex', category: '3D Cars', duration: '2–5 min', description: 'Hit the racing line and pass the field.' },
+  { id: 'traffic-weave-3d', name: 'Traffic Weave 3D', category: '3D Cars', duration: '1–4 min', description: 'Find a safe path through dense rush-hour traffic.' },
+  { id: 'turbo-tunnel-3d', name: 'Turbo Tunnel 3D', category: '3D Cars', duration: '1–3 min', description: 'Blast down a tunnel and dodge the incoming gates.' },
+  { id: 'stunt-ramp-3d', name: 'Stunt Ramp Racers', category: '3D Cars', duration: '2–4 min', description: 'Time your jumps to clear ramps and score stunt points.' },
+  { id: 'police-pursuit-3d', name: 'Police Pursuit 3D', category: '3D Cars', duration: '2–5 min', description: 'Escape the patrol cars for as long as you can.' },
+  { id: 'monster-truck-3d', name: 'Monster Truck Mountain', category: '3D Cars', duration: '2–5 min', description: 'Smash through trail obstacles in a giant truck.' },
+  { id: 'formula-flash-3d', name: 'Formula Flash 3D', category: '3D Cars', duration: '2–5 min', description: 'A quick, high-speed open-wheel racing challenge.' },
+  { id: 'sunset-speedway-3d', name: 'Sunset Speedway', category: '3D Cars', duration: '2–5 min', description: 'Race the last light around a curving speedway.' },
+  { id: 'rainstorm-road-3d', name: 'Rainstorm Road', category: '3D Cars', duration: '2–5 min', description: 'Steer carefully through slick roads and storm debris.' },
+  { id: 'spaceway-racers-3d', name: 'Spaceway Racers', category: '3D Cars', duration: '2–5 min', description: 'Race a hover-car through a star-lit spaceway.' },
+  { id: 'city-delivery-3d', name: 'City Delivery Driver', category: '3D Cars', duration: '2–4 min', description: 'Pick up parcels and get them across town safely.' },
+  { id: 'chess', name: 'Chess', category: 'Two-player', duration: '5–20 min', description: 'Play a full chess match with legal moves and checkmate.' },
+  { id: 'checkers', name: 'Checkers', category: 'Two-player', duration: '3–10 min', description: 'Jump, capture, and crown your pieces.' },
+  { id: 'sudoku', name: 'Sudoku', category: 'Puzzle', duration: '5–15 min', description: 'Fill the grid so every row, column, and box is unique.' },
+  { id: 'hexa-merge', name: 'Number Merge', category: 'Puzzle', duration: '2–5 min', description: 'Combine neighboring equal tiles to grow the biggest number.' },
+  { id: 'color-cascade', name: 'Color Cascade', category: 'Puzzle', duration: '1–4 min', description: 'Clear connected color groups and keep the board open.' },
+  { id: 'pattern-recall', name: 'Pattern Recall', category: 'Arcade', duration: '1–3 min', description: 'Watch a pattern, then repeat it without a mistake.' },
+  { id: 'maze-dash', name: 'Maze Dash', category: 'Puzzle', duration: '1–4 min', description: 'Find the exit through a compact tile maze.' },
+  { id: 'word-builder', name: 'Word Builder', category: 'Puzzle', duration: '1–3 min', description: 'Use the letter rack to build the target word.' },
+  { id: 'math-blitz', name: 'Math Blitz', category: 'Puzzle', duration: '1 min', description: 'Solve quick equations before the timer runs out.' },
+  { id: 'simon-sequence', name: 'Simon Sequence', category: 'Arcade', duration: '1–3 min', description: 'Repeat an ever-growing sequence of colored lights.' },
+  { id: 'paper-plane-flight', name: 'Paper Plane Flight', category: 'Arcade', duration: '1–3 min', description: 'Choose your launch angle and send a paper plane flying.' },
+  { id: 'balloon-buster', name: 'Balloon Buster', category: 'Arcade', duration: '1 min', description: 'Pop the balloons before the round ends.' },
+  { id: 'stack-tower', name: 'Stack Tower', category: 'Arcade', duration: '1–3 min', description: 'Drop each moving block neatly onto the tower.' },
+  { id: 'gravity-flip', name: 'Gravity Flip', category: 'Arcade', duration: '1–3 min', description: 'Flip between floor and ceiling to avoid incoming hazards.' },
+  { id: 'battleship', name: 'Battleship', category: 'Two-player', duration: '3–8 min', description: 'Find the hidden fleet by calling shots on the grid.' },
+  { id: 'reversi', name: 'Reversi', category: 'Two-player', duration: '3–8 min', description: 'Trap your opponent’s discs and flip the board.' },
+  { id: 'mancala', name: 'Mancala', category: 'Two-player', duration: '3–8 min', description: 'Sow the stones around the board and capture the most.' },
+  { id: 'nim', name: 'Nim', category: 'Puzzle', duration: '1–3 min', description: 'Take the last token by planning your moves across the piles.' },
+  { id: 'mastermind', name: 'Mastermind', category: 'Puzzle', duration: '2–5 min', description: 'Crack the hidden color code from the clues.' },
+  { id: 'lights-circuit', name: 'Lights Circuit', category: 'Puzzle', duration: '2–5 min', description: 'Rotate the wire tiles to connect the battery to the lamp.' },
+  { id: 'number-sequence', name: 'Number Sequence', category: 'Puzzle', duration: '1–3 min', description: 'Spot the rule and fill in the missing number.' },
+  { id: 'odd-shape', name: 'Odd Shape', category: 'Arcade', duration: '1 min', description: 'Pick the one shape that breaks the pattern.' },
+  { id: 'jigsaw-shuffle', name: 'Jigsaw Shuffle', category: 'Puzzle', duration: '2–5 min', description: 'Slide the picture tiles back into their original order.' },
+  { id: 'bubble-shooter', name: 'Bubble Shooter', category: 'Arcade', duration: '1–4 min', description: 'Clear connected groups of matching bubbles.' },
+  { id: 'dino-run', name: 'Dino Run', category: 'Arcade', duration: '1–3 min', description: 'Jump over rocks and keep the little runner moving.' },
+  { id: 'snowboard-slalom', name: 'Snowboard Slalom', category: 'Arcade', duration: '1–3 min', description: 'Carve between gates and avoid the trees.' },
+  { id: 'fishing-frenzy', name: 'Fishing Frenzy', category: 'Arcade', duration: '1–3 min', description: 'Time each cast to catch fish and dodge old boots.' },
+  { id: 'pinball', name: 'Pinball', category: 'Arcade', duration: '1–4 min', description: 'Fire the ball and tap the flippers to keep it in play.' },
+  { id: 'orbital-dodger', name: 'Orbital Dodger', category: 'Arcade', duration: '1–3 min', description: 'Switch orbital lanes to avoid the incoming debris.' },
+  { id: 'fruit-catcher', name: 'Fruit Catcher', category: 'Arcade', duration: '1 min', description: 'Move the basket and catch the falling fruit.' },
+] as const;
+type AdditionalGameId = (typeof ADDITIONAL_GAMES)[number]['id'];
+type GameId = BaseGameId | ExtraGameId | ExpansionGameId | AdditionalGameId;
 type GameInfo = { id: GameId; name: string; category: string; duration: string; description: string };
 
 const GAMES: GameInfo[] = [
@@ -64,11 +117,12 @@ const GAMES: GameInfo[] = [
   { id: '2048', name: '2048', category: 'Puzzle', duration: '5–10 min', description: 'Slide, combine, and make the big number.' },
   ...EXTRA_GAMES,
   ...EXPANSION_GAMES,
+  ...ADDITIONAL_GAMES,
 ];
 const EXTRA_GAME_IDS = new Set<string>(EXTRA_GAMES.map((game) => game.id));
-const EXPANSION_GAME_IDS = new Set<string>(EXPANSION_GAMES.map((game) => game.id));
+const EXPANSION_GAME_IDS = new Set<string>([...EXPANSION_GAMES, ...ADDITIONAL_GAMES].map((game) => game.id));
 const EXTRA_ART_COLORS = ['#d6e5d4', '#f3d879', '#f5c6ad', '#c6d9e8', '#e9d4ef', '#f4d0a4'];
-const FILTERS = ['All games', 'Arcade', 'Puzzle', 'Two-player', 'Racing', '3D', 'Favorites'];
+const FILTERS = ['All games', 'Arcade', 'Puzzle', 'Two-player', 'Racing', '3D', '3D Cars', 'Favorites'];
 const MEMORY_FACES = ['◆', '●', '▲', '■', '✦', '⬟', '✚', '◒'];
 const STORAGE_FAVS = 'button-arcade-favorites';
 const BEST_PREFIX = 'button-arcade-best-';

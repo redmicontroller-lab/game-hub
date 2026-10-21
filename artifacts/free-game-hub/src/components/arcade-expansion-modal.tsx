@@ -1,10 +1,28 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Gamepad2, RotateCcw, X } from 'lucide-react';
+import AdditionalMiniGame from '@/components/additional-mini-games';
+import { BattleshipGame, CheckersGame, MancalaGame, ReversiGame, SudokuGame } from '@/components/board-mini-games';
+import ChessGame from '@/components/chess-game';
+import ThreeDCarGame from '@/components/three-d-car-game';
 
 type ExpansionGame = { id: string; name: string };
 
 const RACE_IDS = new Set(['highway-racer', 'drift-circuit', 'rally-rush', 'turbo-time-trial']);
 const THREE_D_IDS = new Set(['maze-explorer-3d', 'tunnel-runner-3d', 'block-stack-3d', 'ball-maze-3d']);
+const THREE_D_CAR_IDS = new Set([
+  'neon-skyline-3d', 'canyon-drift-3d', 'alpine-rally-3d', 'coastal-cruise-3d', 'dune-dash-3d',
+  'midnight-motorway-3d', 'jungle-rally-3d', 'arctic-ice-circuit-3d', 'downtown-taxi-3d',
+  'grand-prix-apex-3d', 'traffic-weave-3d', 'turbo-tunnel-3d', 'stunt-ramp-3d',
+  'police-pursuit-3d', 'monster-truck-3d', 'formula-flash-3d', 'sunset-speedway-3d',
+  'rainstorm-road-3d', 'spaceway-racers-3d', 'city-delivery-3d',
+]);
+const ADDITIONAL_MINI_IDS = new Set([
+  'hexa-merge', 'color-cascade', 'pattern-recall', 'simon-sequence', 'maze-dash', 'word-builder',
+  'math-blitz', 'paper-plane-flight', 'balloon-buster', 'stack-tower', 'gravity-flip', 'nim',
+  'mastermind', 'lights-circuit', 'number-sequence', 'odd-shape', 'jigsaw-shuffle',
+  'bubble-shooter', 'dino-run', 'snowboard-slalom', 'fishing-frenzy', 'pinball',
+  'orbital-dodger', 'fruit-catcher',
+]);
 const CAR_WALLS = new Set(['1-0', '1-1', '3-2', '2-4', '4-2']);
 const MAZE_MAP = [
   '1111111',
@@ -34,6 +52,14 @@ function Control({ children, onClick, label, testId }: { children: ReactNode; on
 }
 
 function ExpansionBody({ game }: { game: ExpansionGame }) {
+  if (THREE_D_CAR_IDS.has(game.id)) return <ThreeDCarGame game={game}/>;
+  if (game.id === 'chess') return <ChessGame/>;
+  if (game.id === 'checkers') return <CheckersGame/>;
+  if (game.id === 'sudoku') return <SudokuGame/>;
+  if (game.id === 'battleship') return <BattleshipGame/>;
+  if (game.id === 'reversi') return <ReversiGame/>;
+  if (game.id === 'mancala') return <MancalaGame/>;
+  if (ADDITIONAL_MINI_IDS.has(game.id)) return <AdditionalMiniGame game={game}/>;
   if (RACE_IDS.has(game.id)) return <RaceGame game={game}/>;
   if (game.id === 'parking-panic') return <ParkingGame/>;
   if (game.id === 'maze-explorer-3d') return <Maze3D/>;

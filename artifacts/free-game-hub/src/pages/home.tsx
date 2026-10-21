@@ -4,8 +4,57 @@ import {
   ChevronRight, CircleHelp, Clock3, Gamepad2, Heart, Keyboard,
   RotateCcw, Search, Sparkles, X,
 } from 'lucide-react';
+import ExtraGameModal from '@/components/extra-game-modal';
+import ArcadeExpansionModal from '@/components/arcade-expansion-modal';
 
-type GameId = 'snake' | 'memory' | 'tic-tac-toe' | '2048';
+type BaseGameId = 'snake' | 'memory' | 'tic-tac-toe' | '2048';
+const EXTRA_GAMES = [
+  { id: 'reaction-tap', name: 'Reaction Tap', category: 'Arcade', duration: '1 min', description: 'How many taps can you land before time runs out?' },
+  { id: 'mole-pop', name: 'Mole Pop', category: 'Arcade', duration: '1 min', description: 'Catch the little visitor before it hops away.' },
+  { id: 'rock-paper-scissors', name: 'Rock Paper Scissors', category: 'Arcade', duration: '1–2 min', description: 'Pick your move and take on the computer.' },
+  { id: 'coin-toss', name: 'Coin Toss', category: 'Arcade', duration: '1 min', description: 'Call heads or tails and test your luck.' },
+  { id: 'higher-lower', name: 'Higher or Lower', category: 'Puzzle', duration: '2 min', description: 'Guess whether the next card is higher.' },
+  { id: 'number-guess', name: 'Number Guess', category: 'Puzzle', duration: '2–4 min', description: 'Use the clues to find the secret number.' },
+  { id: 'word-scramble', name: 'Word Scramble', category: 'Puzzle', duration: '2–4 min', description: 'Untangle the letters and solve the word.' },
+  { id: 'hangman', name: 'Hangman', category: 'Puzzle', duration: '2–4 min', description: 'Guess the hidden word one letter at a time.' },
+  { id: 'minesweeper', name: 'Minesweeper', category: 'Puzzle', duration: '3–6 min', description: 'Find the safe squares and avoid the mines.' },
+  { id: 'lights-out', name: 'Lights Out', category: 'Puzzle', duration: '2–4 min', description: 'Turn off every light with a few careful taps.' },
+  { id: 'simon-says', name: 'Simon Says', category: 'Arcade', duration: '1–3 min', description: 'Watch the colors, then repeat the pattern.' },
+  { id: 'connect-four', name: 'Connect Four', category: 'Two-player', duration: '3–6 min', description: 'Take turns and connect four in a row.' },
+  { id: 'dots-and-boxes', name: 'Dots and Boxes', category: 'Two-player', duration: '3–6 min', description: 'Draw lines, complete boxes, and claim the board.' },
+  { id: 'pong', name: 'Pong', category: 'Arcade', duration: '2–5 min', description: 'Keep the ball in play with your paddle.' },
+  { id: 'breakout', name: 'Breakout', category: 'Arcade', duration: '2–5 min', description: 'Bounce your way through a wall of bricks.' },
+  { id: 'flappy-flyer', name: 'Flappy Flyer', category: 'Arcade', duration: '1–3 min', description: 'Tap to fly through the gaps without a bump.' },
+  { id: 'typing-sprint', name: 'Typing Sprint', category: 'Arcade', duration: '1 min', description: 'Type a quick passage and see your word count.' },
+  { id: 'quick-math', name: 'Quick Math', category: 'Puzzle', duration: '1 min', description: 'Solve as many sums as you can against the clock.' },
+  { id: 'color-match', name: 'Color Match', category: 'Puzzle', duration: '2 min', description: 'Does the word match the color it is written in?' },
+  { id: 'odd-one-out', name: 'Odd One Out', category: 'Puzzle', duration: '2 min', description: 'Spot the shape that doesn’t belong.' },
+] as const;
+type ExtraGameId = (typeof EXTRA_GAMES)[number]['id'];
+const EXPANSION_GAMES = [
+  { id: 'highway-racer', name: 'Highway Racer', category: 'Racing', duration: '2–5 min', description: 'Slip between traffic and see how far you can go.' },
+  { id: 'drift-circuit', name: 'Drift Circuit', category: 'Racing', duration: '2–5 min', description: 'Stay on the road and keep your drift alive.' },
+  { id: 'rally-rush', name: 'Rally Rush', category: 'Racing', duration: '2–5 min', description: 'Race through a winding track and dodge rival cars.' },
+  { id: 'turbo-time-trial', name: 'Turbo Time Trial', category: 'Racing', duration: '1–3 min', description: 'Race the clock through a stream of traffic.' },
+  { id: 'parking-panic', name: 'Parking Panic', category: 'Puzzle', duration: '2–4 min', description: 'Thread your car through the lot into the open bay.' },
+  { id: 'maze-explorer-3d', name: '3D Maze Explorer', category: '3D', duration: '3–6 min', description: 'Walk a first-person maze and find the exit.' },
+  { id: 'tunnel-runner-3d', name: '3D Tunnel Runner', category: '3D', duration: '1–3 min', description: 'Dodge blocks rushing toward you in perspective.' },
+  { id: 'block-stack-3d', name: '3D Block Stack', category: '3D', duration: '2–4 min', description: 'Line up the moving cubes and build a tower.' },
+  { id: 'ball-maze-3d', name: '3D Ball Maze', category: '3D', duration: '2–4 min', description: 'Tilt a perspective maze and guide the ball home.' },
+  { id: 'asteroids', name: 'Asteroids', category: 'Arcade', duration: '2–4 min', description: 'Clear each asteroid field and face a new wave.' },
+  { id: 'space-invaders', name: 'Space Invaders', category: 'Arcade', duration: '2–4 min', description: 'Aim by column and clear the descending fleet.' },
+  { id: 'bubble-pop', name: 'Bubble Pop', category: 'Arcade', duration: '1–2 min', description: 'Pop a whole field of bright little bubbles.' },
+  { id: 'fruit-slice', name: 'Fruit Slice', category: 'Arcade', duration: '1 min', description: 'Tap the fruit before the short round runs out.' },
+  { id: 'sliding-puzzle', name: 'Sliding Puzzle', category: 'Puzzle', duration: '2–5 min', description: 'Slide the numbered tiles back into order.' },
+  { id: 'mini-golf', name: 'Mini Golf', category: 'Arcade', duration: '2–5 min', description: 'Tune your aim and power to putt it in.' },
+  { id: 'basketball-shot', name: 'Basketball Shot', category: 'Arcade', duration: '1–3 min', description: 'Find the right arc and power for a clean basket.' },
+  { id: 'treasure-hunt', name: 'Treasure Hunt', category: 'Puzzle', duration: '2–4 min', description: 'Follow the warm and cold clues to the prize.' },
+  { id: 'star-catcher', name: 'Star Catcher', category: 'Arcade', duration: '1 min', description: 'Move your catcher under falling stars.' },
+  { id: 'word-search', name: 'Word Search', category: 'Puzzle', duration: '2–4 min', description: 'Find three hidden words in the letter grid.' },
+  { id: 'rocket-landing', name: 'Rocket Landing', category: 'Arcade', duration: '1–2 min', description: 'Balance your thrust for a gentle touchdown.' },
+] as const;
+type ExpansionGameId = (typeof EXPANSION_GAMES)[number]['id'];
+type GameId = BaseGameId | ExtraGameId | ExpansionGameId;
 type GameInfo = { id: GameId; name: string; category: string; duration: string; description: string };
 
 const GAMES: GameInfo[] = [
@@ -13,8 +62,13 @@ const GAMES: GameInfo[] = [
   { id: 'memory', name: 'Memory Match', category: 'Puzzle', duration: '3–6 min', description: 'Flip the tiles. Find the matching pairs.' },
   { id: 'tic-tac-toe', name: 'Tic-Tac-Toe', category: 'Two-player', duration: '1–2 min', description: 'A tiny classic. Bring a friend or play both sides.' },
   { id: '2048', name: '2048', category: 'Puzzle', duration: '5–10 min', description: 'Slide, combine, and make the big number.' },
+  ...EXTRA_GAMES,
+  ...EXPANSION_GAMES,
 ];
-const FILTERS = ['All games', 'Arcade', 'Puzzle', 'Two-player', 'Favorites'];
+const EXTRA_GAME_IDS = new Set<string>(EXTRA_GAMES.map((game) => game.id));
+const EXPANSION_GAME_IDS = new Set<string>(EXPANSION_GAMES.map((game) => game.id));
+const EXTRA_ART_COLORS = ['#d6e5d4', '#f3d879', '#f5c6ad', '#c6d9e8', '#e9d4ef', '#f4d0a4'];
+const FILTERS = ['All games', 'Arcade', 'Puzzle', 'Two-player', 'Racing', '3D', 'Favorites'];
 const MEMORY_FACES = ['◆', '●', '▲', '■', '✦', '⬟', '✚', '◒'];
 const STORAGE_FAVS = 'button-arcade-favorites';
 const BEST_PREFIX = 'button-arcade-best-';
@@ -75,10 +129,19 @@ function Art({ game }: { game: GameId }) {
   if (game === 'snake') return <div className="snake-mark" aria-hidden="true" />;
   if (game === 'memory') return <div className="art-pattern" aria-hidden="true"><i>◆</i><i>●</i><i>●</i><i>◆</i></div>;
   if (game === 'tic-tac-toe') return <div className="art-pattern" aria-hidden="true"><i>X</i><i>O</i><i>O</i><i>X</i></div>;
-  return <div className="art-pattern" aria-hidden="true"><i>2</i><i>4</i><i>8</i><i>16</i></div>;
+  if (game === '2048') return <div className="art-pattern" aria-hidden="true"><i>2</i><i>4</i><i>8</i><i>16</i></div>;
+  const initials = game.split('-').map((part) => part[0].toUpperCase()).slice(0, 4);
+  while (initials.length < 4) initials.push('•');
+  return <div className="art-pattern" aria-hidden="true">{initials.map((letter, index) => <i key={index}>{letter}</i>)}</div>;
 }
 
 function GameModal({ game, onClose }: { game: GameInfo; onClose: () => void }) {
+  if (EXPANSION_GAME_IDS.has(game.id)) return <ArcadeExpansionModal game={game} onClose={onClose}/>;
+  if (EXTRA_GAME_IDS.has(game.id)) return <ExtraGameModal game={game} onClose={onClose}/>;
+  return <ClassicGameModal game={game as GameInfo & { id: BaseGameId }} onClose={onClose}/>;
+}
+
+function ClassicGameModal({ game, onClose }: { game: GameInfo & { id: BaseGameId }; onClose: () => void }) {
   const [started, setStarted] = useState(false);
   const [snake, setSnake] = useState([119, 118, 117]);
   const [food, setFood] = useState(85);
@@ -336,7 +399,7 @@ export default function Home() {
     </section>
     <main className="main-wrap" id="game-lobby">
       <div className="section-top">
-        <div><h2 className="section-title" data-testid="text-lobby-title">{category === 'Favorites' ? 'Your favorites' : 'Choose your game'}</h2><p className="section-subtitle">{category === 'Favorites' ? `${favorites.length} saved for later` : 'Small games for your in-between moments.'}</p></div>
+        <div><h2 className="section-title" data-testid="text-lobby-title">{category === 'Favorites' ? 'Your favorites' : 'Choose your game'}</h2><p className="section-subtitle">{category === 'Favorites' ? `${favorites.length} saved for later` : `${GAMES.length} free games for your in-between moments.`}</p></div>
         <div className="tool-row">
           <label className="search-box"><Search size={17}/><input type="search" placeholder="Find a game..." value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Search games" data-testid="input-search-games"/></label>
         </div>
@@ -346,7 +409,7 @@ export default function Home() {
       </div>
       <div className="games-grid" data-testid="grid-games">
         {visibleGames.map((game) => <article className="game-card" key={game.id} data-testid={`card-game-${game.id}`}>
-          <div className={`card-art art-${game.id}`} onClick={() => startGame(game)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') startGame(game); }} aria-label={`Play ${game.name}`} data-testid={`art-game-${game.id}`}>
+          <div className={`card-art art-${game.id}`} style={EXTRA_GAME_IDS.has(game.id) || EXPANSION_GAME_IDS.has(game.id) ? { backgroundColor: EXTRA_ART_COLORS[GAMES.indexOf(game) % EXTRA_ART_COLORS.length] } : undefined} onClick={() => startGame(game)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') startGame(game); }} aria-label={`Play ${game.name}`} data-testid={`art-game-${game.id}`}>
             <button className={`favorite-btn ${favorites.includes(game.id) ? 'favorited' : ''}`} onClick={(event) => { event.stopPropagation(); toggleFavorite(game.id); }} aria-label={favorites.includes(game.id) ? `Remove ${game.name} from favorites` : `Add ${game.name} to favorites`} data-testid={`button-favorite-${game.id}`}><Heart size={17} fill={favorites.includes(game.id) ? 'currentColor' : 'none'}/></button>
             <div className="art-icon"><Art game={game.id}/></div>
           </div>

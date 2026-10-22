@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import ExtraGameModal from '@/components/extra-game-modal';
 import ArcadeExpansionModal from '@/components/arcade-expansion-modal';
+import ThreeDGameModal from '@/components/three-d-game-modal';
 
 type BaseGameId = 'snake' | 'memory' | 'tic-tac-toe' | '2048';
 const EXTRA_GAMES = [
@@ -75,6 +76,9 @@ const ADDITIONAL_GAMES = [
   { id: 'rainstorm-road-3d', name: 'Rainstorm Road', category: '3D Cars', duration: '2–5 min', description: 'Steer carefully through slick roads and storm debris.' },
   { id: 'spaceway-racers-3d', name: 'Spaceway Racers', category: '3D Cars', duration: '2–5 min', description: 'Race a hover-car through a star-lit spaceway.' },
   { id: 'city-delivery-3d', name: 'City Delivery Driver', category: '3D Cars', duration: '2–4 min', description: 'Pick up parcels and get them across town safely.' },
+  { id: 'time-shift-racer-4d', name: 'Time Shift Racer', category: '4D', duration: '2–4 min', description: 'Race through a track that shifts between time phases.' },
+  { id: 'chrono-maze-4d', name: 'Chrono Maze', category: '4D', duration: '2–5 min', description: 'Find the exit before the maze rearranges itself.' },
+  { id: 'gravity-rift-4d', name: 'Gravity Rift', category: '4D', duration: '1–3 min', description: 'Dodge the rift as gravity changes around you.' },
   { id: 'chess', name: 'Chess', category: 'Two-player', duration: '5–20 min', description: 'Play a full chess match with legal moves and checkmate.' },
   { id: 'checkers', name: 'Checkers', category: 'Two-player', duration: '3–10 min', description: 'Jump, capture, and crown your pieces.' },
   { id: 'sudoku', name: 'Sudoku', category: 'Puzzle', duration: '5–15 min', description: 'Fill the grid so every row, column, and box is unique.' },
@@ -121,8 +125,18 @@ const GAMES: GameInfo[] = [
 ];
 const EXTRA_GAME_IDS = new Set<string>(EXTRA_GAMES.map((game) => game.id));
 const EXPANSION_GAME_IDS = new Set<string>([...EXPANSION_GAMES, ...ADDITIONAL_GAMES].map((game) => game.id));
+const FOUR_D_GAME_IDS = new Set(['time-shift-racer-4d', 'chrono-maze-4d', 'gravity-rift-4d']);
+const THREE_D_GAME_IDS = new Set<string>([
+  ...ADDITIONAL_GAMES.filter((game) => game.category === '3D Cars').map((game) => game.id),
+  ...EXPANSION_GAMES.filter((game) => game.category === '3D').map((game) => game.id),
+  'snake', 'memory', 'tic-tac-toe', '2048',
+  ...EXTRA_GAMES.filter((game) => game.id !== 'typing-sprint').map((game) => game.id),
+  ...EXPANSION_GAMES.filter((game) => game.category !== '3D').map((game) => game.id),
+  'chess', 'checkers', 'sudoku', 'hexa-merge', 'color-cascade', 'pattern-recall', 'maze-dash',
+  ...FOUR_D_GAME_IDS,
+]);
 const EXTRA_ART_COLORS = ['#d6e5d4', '#f3d879', '#f5c6ad', '#c6d9e8', '#e9d4ef', '#f4d0a4'];
-const FILTERS = ['All games', 'Arcade', 'Puzzle', 'Two-player', 'Racing', '3D', '3D Cars', 'Favorites'];
+const FILTERS = ['All games', 'Arcade', 'Puzzle', 'Two-player', 'Racing', '3D', '3D Cars', '4D', 'Favorites'];
 const MEMORY_FACES = ['◆', '●', '▲', '■', '✦', '⬟', '✚', '◒'];
 const STORAGE_FAVS = 'button-arcade-favorites';
 const BEST_PREFIX = 'button-arcade-best-';
@@ -190,6 +204,7 @@ function Art({ game }: { game: GameId }) {
 }
 
 function GameModal({ game, onClose }: { game: GameInfo; onClose: () => void }) {
+  if (THREE_D_GAME_IDS.has(game.id)) return <ThreeDGameModal game={game} onClose={onClose}/>;
   if (EXPANSION_GAME_IDS.has(game.id)) return <ArcadeExpansionModal game={game} onClose={onClose}/>;
   if (EXTRA_GAME_IDS.has(game.id)) return <ExtraGameModal game={game} onClose={onClose}/>;
   return <ClassicGameModal game={game as GameInfo & { id: BaseGameId }} onClose={onClose}/>;
@@ -419,7 +434,11 @@ export default function Home() {
   }, [favorites]);
   const visibleGames = useMemo(() => GAMES.filter((game) => {
     const matchesSearch = `${game.name} ${game.category} ${game.description}`.toLowerCase().includes(search.toLowerCase().trim());
-    const matchesCategory = category === 'All games' || (category === 'Favorites' ? favorites.includes(game.id) : game.category === category);
+    const matchesCategory = category === 'All games'
+      || (category === 'Favorites' ? favorites.includes(game.id)
+        : category === '3D' ? THREE_D_GAME_IDS.has(game.id)
+          : category === '4D' ? FOUR_D_GAME_IDS.has(game.id)
+            : game.category === category);
     return matchesSearch && matchesCategory;
   }), [category, favorites, search]);
   const toggleFavorite = (id: GameId) => setFavorites((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
@@ -468,7 +487,7 @@ export default function Home() {
             <div className="art-icon"><Art game={game.id}/></div>
           </div>
           <div className="card-content">
-            <div className="card-meta"><span className="game-category">{game.category}</span><span className="game-duration"><Clock3 size={11} style={{verticalAlign:'-2px',marginRight:4}}/>{game.duration}</span></div>
+            <div className="card-meta"><span className="game-category">{game.category}</span>{THREE_D_GAME_IDS.has(game.id) && <span className={`dimension-badge ${FOUR_D_GAME_IDS.has(game.id) ? 'four-d' : ''}`}>{FOUR_D_GAME_IDS.has(game.id) ? '4D' : '3D'}</span>}<span className="game-duration"><Clock3 size={11} style={{verticalAlign:'-2px',marginRight:4}}/>{game.duration}</span></div>
             <h3>{game.name}</h3><p>{game.description}</p>
             <button className="play-card" onClick={() => startGame(game)} data-testid={`button-play-${game.id}`}>Play now <span><ChevronRight size={16}/></span></button>
           </div>
